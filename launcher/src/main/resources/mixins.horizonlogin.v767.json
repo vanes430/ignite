@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "package": "space.vectrix.ignite.mixin.v767_769",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "space.vectrix.ignite.mixin.HorizonLoginMixinPlugin",
+  "mixins": [
+    "PaperPluginsCommandMixin"
+  ]
+}

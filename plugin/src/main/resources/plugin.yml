@@ -1,0 +1,6 @@
+name: HorizonLogin
+version: 1.0.0
+main: com.github.vanes430.horizonlogin.HorizonLoginPlugin
+api-version: '1.21'
+description: HorizonLogin plugin loaded via jar-in-jar
+author: vanes430

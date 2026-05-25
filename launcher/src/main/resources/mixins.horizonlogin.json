@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "space.vectrix.ignite.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "space.vectrix.ignite.mixin.HorizonLoginMixinPlugin",
+  "mixins": [
+    "MinecraftServerMixin",
+    "PluginInitializerManagerMixin",
+    "ServerConfigurationMixin",
+    "ServerLoginMixin"
+  ]
+}

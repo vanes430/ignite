@@ -1,0 +1,12 @@
+{
+  "id": "horizonlogin",
+  "version": "1.0.0",
+  "mixins": [
+    "mixins.horizonlogin.json",
+    "mixins.horizonlogin.v767.json",
+    "mixins.horizonlogin.v769.json",
+    "mixins.horizonlogin.v772.json",
+    "mixins.horizonlogin.v774.json",
+    "mixins.horizonlogin.v775.json"
+  ]
+}
