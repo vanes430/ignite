@@ -8,6 +8,12 @@ import space.vectrix.ignite.util.LoginEventBus;
 public final class HorizonLoginPlugin extends JavaPlugin {
 
   @Override
+  public void onLoad() {
+    // Load runtime libraries via Libby
+    LibraryLoader.load(this);
+  }
+
+  @Override
   public void onEnable() {
     HorizonLog.info("Loaded via jar-in-jar from ignite.jar");
 

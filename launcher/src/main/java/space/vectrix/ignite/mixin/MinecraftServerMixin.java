@@ -60,4 +60,9 @@ public abstract class MinecraftServerMixin {
 
     cir.setReturnValue(event.useOnlineVerification());
   }
+
+  @Inject(method = "enforceSecureProfile", at = @At("HEAD"), cancellable = true)
+  private void horizonlogin$bypassSecureProfile(final CallbackInfoReturnable<Boolean> cir) {
+    cir.setReturnValue(false);
+  }
 }

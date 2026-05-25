@@ -48,19 +48,8 @@ public abstract class ServerLoginMixin {
     LoginEventBus.setCurrentUsername(this.requestedUsername);
   }
 
-  @Inject(method = "startClientVerification", at = @At("HEAD"))
-  private void horizonlogin$overrideProfile(final CallbackInfo ci) {
-    if (this.requestedUsername == null) return;
-    if (!LoginEventBus.shouldForceOfflineUuid(this.requestedUsername)) return;
-
-    // Override authenticatedProfile will happen in TAIL won't help because
-    // the argument GameProfile is what gets assigned. We need to modify the field after assignment.
-    // Mark for post-override
-    LoginEventBus.setForceOfflineUuid(this.requestedUsername);
-  }
-
   @Inject(method = "startClientVerification", at = @At("TAIL"))
-  private void horizonlogin$overrideProfilePost(final CallbackInfo ci) {
+  private void horizonlogin$overrideProfile(final CallbackInfo ci) {
     if (this.requestedUsername == null) return;
     if (!LoginEventBus.shouldForceOfflineUuid(this.requestedUsername)) return;
 
@@ -79,14 +68,56 @@ public abstract class ServerLoginMixin {
       if (originalProfile != null) {
         final Object originalProps = gameProfileClass.getMethod("getProperties").invoke(originalProfile);
         final Object newProps = gameProfileClass.getMethod("getProperties").invoke(offlineProfile);
-        // putAll(Multimap) via reflection
         final Class<?> multimapClass = Class.forName("com.google.common.collect.Multimap");
         newProps.getClass().getMethod("putAll", multimapClass).invoke(newProps, originalProps);
       }
 
       profileField.set(this, offlineProfile);
       space.vectrix.ignite.util.HorizonLog.info(
-        "UUID of player {} is {} (overridden)", this.requestedUsername, offlineUuid);
+        "UUID of player {} is {}", this.requestedUsername, offlineUuid);
+    } catch (final Throwable ignored) {
+    }
+  }
+
+  static {
+    // Suppress NMS "UUID of player" log by adding a filter to the logger
+    try {
+      final Class<?> logManagerClass = Class.forName("org.apache.logging.log4j.LogManager");
+      final Class<?> loggerClass = Class.forName("org.apache.logging.log4j.core.Logger");
+      final Class<?> filterClass = Class.forName("org.apache.logging.log4j.core.Filter");
+
+      final Object nmsLogger = logManagerClass.getMethod("getLogger", String.class)
+        .invoke(null, "net.minecraft.server.network.ServerLoginPacketListenerImpl");
+
+      // Create a custom filter via proxy
+      final Object filter = java.lang.reflect.Proxy.newProxyInstance(
+        filterClass.getClassLoader(),
+        new Class<?>[]{filterClass},
+        (proxy, method, args) -> {
+          if ("filter".equals(method.getName()) && args != null) {
+            for (final Object arg : args) {
+              if (arg != null && arg.toString().contains("UUID of player")) {
+                // Return DENY
+                return Class.forName("org.apache.logging.log4j.core.Filter$Result")
+                  .getField("DENY").get(null);
+              }
+            }
+          }
+          if ("getOnMatch".equals(method.getName()) || "getOnMismatch".equals(method.getName())) {
+            return Class.forName("org.apache.logging.log4j.core.Filter$Result")
+              .getField("NEUTRAL").get(null);
+          }
+          if ("getState".equals(method.getName())) {
+            return Class.forName("org.apache.logging.log4j.core.LifeCycle$State")
+              .getField("STARTED").get(null);
+          }
+          if ("isStarted".equals(method.getName())) return true;
+          if ("isStopped".equals(method.getName())) return false;
+          return null;
+        }
+      );
+
+      loggerClass.getMethod("addFilter", filterClass).invoke(nmsLogger, filter);
     } catch (final Throwable ignored) {
     }
   }

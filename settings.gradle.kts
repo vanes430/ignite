@@ -26,6 +26,7 @@ dependencyResolutionManagement {
     mavenCentral()
     maven("https://maven.fabricmc.net/")
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.diogotc.com/releases/")
   }
 }
 

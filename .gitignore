@@ -299,3 +299,5 @@ packetevents-*.jar
 WHAT_IS_HORIZON_AND_HOW_TO_USE.md
 src/main/
 src/plugin/
+config.conf
+messages.conf

@@ -64,6 +64,14 @@ public abstract class PluginInitializerManagerMixin {
       final Object pdf = pdfClass.getConstructor(String.class, String.class, String.class)
         .newInstance("HorizonLogin", "1.0.0", pluginClass.getName());
 
+      // Set authors/contributors to avoid NPE in /version command
+      final java.lang.reflect.Field authorsField = pdfClass.getDeclaredField("authors");
+      authorsField.setAccessible(true);
+      authorsField.set(pdf, java.util.List.of("vanes430"));
+      final java.lang.reflect.Field contributorsField = pdfClass.getDeclaredField("contributors");
+      contributorsField.setAccessible(true);
+      contributorsField.set(pdf, java.util.List.of());
+
       // Get server and plugin manager
       final Class<?> bukkitClass = Class.forName("org.bukkit.Bukkit");
       final Object server = bukkitClass.getMethod("getServer").invoke(null);
